@@ -1,10 +1,15 @@
 # Xcode
-*.xcodeproj
-*.xcworkspace
-xcuserdata/
-*.xccheckout
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Build
+build/
+DerivedData/
 *.moved-aside
-*.hmap
 *.ipa
 *.dSYM.zip
 *.dSYM
@@ -12,29 +17,29 @@ xcuserdata/
 # Swift Package Manager
 .build/
 .swiftpm/
+Packages/
 Package.resolved
 
 # CocoaPods
 Pods/
-Podfile.lock
 
 # Carthage
 Carthage/Build/
-Carthage/Checkouts/
 
-# OS
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# macOS
 .DS_Store
-*.pem
-*.p12
-Thumbs.db
+*.swp
+*~.nib
+*.pbxuser
+!default.pbxuser
 
 # IDE
-*.swp
-*.swo
-*~
-.idea/
-.vscode/
-
-# Derived
-DerivedData/
-build/
+*.xcuserstate
+*.xcscmblueprint
+*.idea/
