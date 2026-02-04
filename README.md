@@ -1,63 +1,106 @@
-<div align="center">
+<p align="center">
+  <img src="Assets/logo.png" alt="SwiftUI State Management" width="200"/>
+</p>
 
-# 🔄 SwiftUI-State-Management
+<h1 align="center">SwiftUI State Management</h1>
 
-**Lightweight TCA-inspired state management for SwiftUI**
+<p align="center">
+  <strong>🔄 Lightweight TCA-inspired state management for SwiftUI</strong>
+</p>
 
-[![Swift](https://img.shields.io/badge/Swift-5.9+-F05138?style=for-the-badge&logo=swift&logoColor=white)](https://swift.org)
-[![iOS](https://img.shields.io/badge/iOS-15.0+-000000?style=for-the-badge&logo=apple&logoColor=white)](https://developer.apple.com/ios/)
-[![SPM](https://img.shields.io/badge/SPM-Compatible-FA7343?style=for-the-badge&logo=swift&logoColor=white)](https://swift.org/package-manager/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-
-</div>
-
----
-
-## ✨ Features
-
-- 🔄 **Unidirectional** — Predictable state flow
-- 🧪 **Testable** — Easy to test reducers
-- 📦 **Lightweight** — Simpler than TCA
-- ⚡ **Performance** — Optimized re-renders
-- 🔌 **Effects** — Side effect handling
+<p align="center">
+  <img src="https://img.shields.io/badge/Swift-6.0-orange.svg" alt="Swift"/>
+  <img src="https://img.shields.io/badge/iOS-17.0+-blue.svg" alt="iOS"/>
+</p>
 
 ---
 
-## 🚀 Quick Start
+## Why?
+
+TCA is powerful but complex. SwiftUI's built-in state is limited. **SwiftUI State Management** provides the best of both - unidirectional data flow with minimal boilerplate.
 
 ```swift
-import SwiftUIStateManagement
-
-struct CounterState: StateType {
-    var count = 0
-}
-
-enum CounterAction {
-    case increment, decrement
-}
-
-let counterReducer = Reducer<CounterState, CounterAction> { state, action in
-    switch action {
-    case .increment: state.count += 1
-    case .decrement: state.count -= 1
+// Define feature
+@Feature
+struct Counter {
+    struct State {
+        var count = 0
     }
-    return .none
+    
+    enum Action {
+        case increment
+        case decrement
+    }
+    
+    func reduce(state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .increment:
+            state.count += 1
+            return .none
+        case .decrement:
+            state.count -= 1
+            return .none
+        }
+    }
 }
 
+// Use in view
 struct CounterView: View {
-    @StateObject var store = Store(CounterState(), counterReducer)
+    @Store var store: Counter.Store
     
     var body: some View {
         VStack {
             Text("\(store.state.count)")
             Button("+") { store.send(.increment) }
+            Button("-") { store.send(.decrement) }
         }
     }
 }
 ```
 
----
+## Features
 
-## 📄 License
+| Feature | Description |
+|---------|-------------|
+| 🔄 **Unidirectional** | State → View → Action → Reducer |
+| 🧪 **Testable** | Easy state & action testing |
+| 🎯 **Type-Safe** | Compile-time guarantees |
+| ⚡ **Effects** | Async side effects |
+| 🔗 **Composition** | Combine child features |
 
-MIT • [@muhittincamdali](https://github.com/muhittincamdali)
+## Effects
+
+```swift
+func reduce(state: inout State, action: Action) -> Effect<Action> {
+    switch action {
+    case .loadUsers:
+        return .task {
+            let users = try await api.fetchUsers()
+            return .usersLoaded(users)
+        }
+    case .usersLoaded(let users):
+        state.users = users
+        return .none
+    }
+}
+```
+
+## Testing
+
+```swift
+func testIncrement() {
+    let store = TestStore(Counter())
+    
+    store.send(.increment) {
+        $0.count = 1
+    }
+}
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT License
