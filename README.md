@@ -116,3 +116,119 @@ MIT License
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=muhittincamdali/SwiftUI-State-Management&type=Date" />
  </picture>
 </a>
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage Examples](#usage-examples)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Requirements
+
+| Requirement | Version |
+|-------------|---------|
+| iOS | 15.0+ |
+| macOS | 12.0+ |
+| Xcode | 15.0+ |
+| Swift | 5.9+ |
+
+## Installation
+
+### Swift Package Manager
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "1.0.0")
+]
+```
+
+### CocoaPods
+
+```ruby
+pod 'SwiftUIStateManagement', '~> 1.0'
+```
+
+## Quick Start
+
+```swift
+import SwiftUIStateManagement
+
+// Create a store
+let store = Store(
+    initialState: AppState(),
+    reducer: appReducer
+)
+
+// Use in SwiftUI
+struct ContentView: View {
+    @StateObject var store: Store<AppState, Action>
+    
+    var body: some View {
+        Text(store.state.counter.description)
+            .onTapGesture {
+                store.dispatch(.increment)
+            }
+    }
+}
+```
+
+## Usage Examples
+
+### Redux-like Pattern
+
+```swift
+struct AppState {
+    var counter: Int = 0
+    var isLoading: Bool = false
+}
+
+enum Action {
+    case increment
+    case decrement
+    case setLoading(Bool)
+}
+
+func appReducer(state: inout AppState, action: Action) {
+    switch action {
+    case .increment:
+        state.counter += 1
+    case .decrement:
+        state.counter -= 1
+    case .setLoading(let loading):
+        state.isLoading = loading
+    }
+}
+```
+
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](Documentation/GettingStarted.md) | First steps |
+| [Patterns](Documentation/Patterns.md) | State patterns |
+| [Best Practices](Documentation/BestPractices.md) | Tips & tricks |
+
+## Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT License - see [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+**Muhittin Camdali**
+
+[![GitHub](https://img.shields.io/badge/GitHub-muhittincamdali-181717?style=for-the-badge&logo=github)](https://github.com/muhittincamdali)
+
+</div>
