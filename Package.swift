@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 
 import PackageDescription
 
@@ -20,12 +20,16 @@ let package = Package(
         .target(
             name: "SwiftUIStateManagement",
             dependencies: [],
-            path: "Sources/SwiftUIStateManagement"
+            path: "Sources/SwiftUIStateManagement",
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency")
+            ]
         ),
         .testTarget(
             name: "SwiftUIStateManagementTests",
             dependencies: ["SwiftUIStateManagement"],
             path: "Tests/SwiftUIStateManagementTests"
         )
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
