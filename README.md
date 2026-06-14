@@ -6,6 +6,8 @@
 
 ---
 
+## 🚀 Killer Feature: Time-Travel Debugger Plugin
+Never lose a state bug again. Our DevTools plugin integrates directly into the Store, allowing you to scrub backward and forward through your app's state history in real-time.
 > **🛡️ PART OF THE 2026 UNIFIED CORE**
 > This repository is a verified component of 'The Endless March' initiative. Purified for Swift 6, zero-dependency, and engineered for maximum hardware saturation.
 > 
