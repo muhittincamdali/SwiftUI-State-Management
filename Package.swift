@@ -1,29 +1,20 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 import PackageDescription
 
 let package = Package(
     name: "SwiftUIStateManagement",
     platforms: [
-        .iOS(.v16),
-        .macOS(.v13),
-        .watchOS(.v9),
-        .tvOS(.v16),
-        .visionOS(.v1)
+        .iOS(.v17),
+        .macOS(.v14),
+        .tvOS(.v17),
+        .watchOS(.v10),
+        .visionOS(.v1),
     ],
     products: [
         .library(name: "SwiftUIStateManagement", targets: ["SwiftUIStateManagement"]),
     ],
     targets: [
-        .target(
-            name: "SwiftUIStateManagement",
-            path: "Sources/SwiftUIStateManagement",
-            swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency")
-            ]
-        ),
-        .testTarget(
-            name: "SwiftUIStateManagementTests",
-            dependencies: ["SwiftUIStateManagement"]
-        )
-    ]
+        .target(name: "SwiftUIStateManagement"),
+    ],
+    swiftLanguageModes: [.v6]
 )
