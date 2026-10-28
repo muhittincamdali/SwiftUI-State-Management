@@ -33,6 +33,14 @@ jobs:
         with:
           persist-credentials: false
 
+      # The test target runs the README samples and the todos feature from the app's own files
+      # (symbolic links in Tests/). A copy that replaced a link could drift from the app unnoticed.
+      - name: Test sources match the app
+        run: |
+          for file in ReadmeSamples.swift TodosFeature.swift; do
+            cmp "Examples/StateDemo/StateDemo/$file" "Tests/SwiftUIStateManagementTests/$file"
+          done
+
       - name: Toolchain
         run: xcodebuild -version
 
