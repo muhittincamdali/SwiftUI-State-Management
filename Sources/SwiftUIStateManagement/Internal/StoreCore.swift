@@ -57,7 +57,7 @@ final class RootCore<R: Reducer>: StoreCore, Observable {
         runner.reportUnhandledError = { [weak self] error in
             self?.onIssue(StoreIssue(
                 kind: .unhandledEffectError(errorType: StoreIssue.typeName(of: error)),
-                actionType: String(reflecting: Action.self)
+                actionType: StoreIssue.typeName(Action.self)
             ))
         }
     }
@@ -118,7 +118,7 @@ final class RootCore<R: Reducer>: StoreCore, Observable {
             if processed > StoreLimits.synchronousActions {
                 onIssue(StoreIssue(
                     kind: .synchronousActionLimitExceeded(limit: StoreLimits.synchronousActions),
-                    actionType: String(reflecting: Action.self)
+                    actionType: StoreIssue.typeName(Action.self)
                 ))
                 break
             }

@@ -42,14 +42,29 @@ public struct StoreIssue: Sendable, Equatable, CustomStringConvertible {
     }
 
     static func typeName(of value: Any) -> String {
-        String(reflecting: type(of: value))
+        typeName(type(of: value))
+    }
+
+    /// The qualified name of `type`. Swift names a type declared inside a function
+    /// `(unknown context at $<address>)`; the address is replaced, so it never reaches a log.
+    static func typeName(_ type: Any.Type) -> String {
+        removingAddresses(from: String(reflecting: type))
+    }
+
+    static func removingAddresses(from text: String) -> String {
+        text.replacing(/\(unknown context at \$[0-9a-fA-F]+\)/, with: "(unknown context)")
+    }
+
+    /// The line ``logToUnifiedLog(_:)`` writes; it is public in the log, so it holds no address.
+    static func logMessage(for issue: StoreIssue) -> String {
+        removingAddresses(from: issue.description)
     }
 
     /// Writes `issue` to the unified log as a fault, under the subsystem `SwiftUIStateManagement`
     /// and the category `Store`. This is what a store does when you pass no `onIssue` handler.
     @MainActor
     public static func logToUnifiedLog(_ issue: StoreIssue) {
-        logger.fault("\(issue.description, privacy: .public)")
+        logger.fault("\(logMessage(for: issue), privacy: .public)")
     }
 
     private static let logger = Logger(subsystem: "SwiftUIStateManagement", category: "Store")

@@ -232,6 +232,17 @@ struct StoreTests {
         #expect(issue?.description.contains("token") == false)
     }
 
+    @Test("Type names in an issue and its log line hold no memory address")
+    func issueNamesHaveNoAddress() {
+        struct LocalError: Error {}
+        let reflected = String(reflecting: LocalError.self)
+        #expect(reflected.contains("(unknown context at $"))
+
+        #expect(StoreIssue.typeName(of: LocalError()).hasSuffix("(unknown context).LocalError"))
+        let issue = StoreIssue(kind: .unhandledEffectError(errorType: reflected), actionType: reflected)
+        #expect(!StoreIssue.logMessage(for: issue).contains("$"))
+    }
+
     @Test("A catch handler turns an effect error into an action")
     func handledError() async {
         let issues = Collected<StoreIssue>()
