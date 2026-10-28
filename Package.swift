@@ -20,6 +20,10 @@ let package = Package(
             name: "SwiftUIStateManagementTesting",
             dependencies: ["SwiftUIStateManagement"]
         ),
+        .testTarget(
+            name: "SwiftUIStateManagementTests",
+            dependencies: ["SwiftUIStateManagement", "SwiftUIStateManagementTesting"]
+        ),
     ],
     swiftLanguageModes: [.v6]
 )
