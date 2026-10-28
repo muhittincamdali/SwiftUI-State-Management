@@ -1,0 +1,45 @@
+{
+  "name": "SwiftUI State Management",
+  "repository": "muhittincamdali/SwiftUI-State-Management",
+  "tagline": {
+    "en": "Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."
+  },
+  "tags": {
+    "en": [
+      "Swift 6",
+      "Observation",
+      "iOS · macOS",
+      "No dependencies"
+    ]
+  },
+  "motif": "components",
+  "buttons": [
+    "start",
+    "docs",
+    "examples"
+  ],
+  "links": {
+    "docs": "https://muhittincamdali.github.io/SwiftUI-State-Management/documentation/swiftuistatemanagement/",
+    "examples": "Examples/"
+  },
+  "languages": [
+    "en",
+    "tr",
+    "zh-CN",
+    "ja",
+    "ko",
+    "es",
+    "de",
+    "fr",
+    "pt-BR",
+    "ru"
+  ],
+  "docc": {
+    "targets": [
+      "SwiftUIStateManagement",
+      "SwiftUIStateManagementTesting"
+    ]
+  },
+  "socialTheme": "dark",
+  "scheme": "SwiftUIStateManagement-Package"
+}

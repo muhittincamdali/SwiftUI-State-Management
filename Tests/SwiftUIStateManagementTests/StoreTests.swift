@@ -1,563 +1,282 @@
-import XCTest
+import Foundation
+import Testing
 @testable import SwiftUIStateManagement
+import SwiftUIStateManagementTesting
 
-// MARK: - Test State & Actions
+/// A feature whose actions start the different kinds of effects.
+struct Jobs: Reducer {
+    struct State: Equatable {
+        var log: [String] = []
+    }
 
-struct TestState: Equatable {
-    var count = 0
-    var name = ""
-    var isLoading = false
-    var items: [String] = []
-}
+    enum Action: Equatable {
+        case start(String)
+        case startTracked(String, cancelInFlight: Bool)
+        case cancelTracked
+        case finished(String)
+        case chain(Int)
+        case loopForever
+        case fail
+        case failHandled
+        case handled(String)
+        case sendTwice
+    }
 
-enum TestAction: Equatable {
-    case increment
-    case decrement
-    case setName(String)
-    case setLoading(Bool)
-    case addItem(String)
-    case removeItem(Int)
-    case reset
-    case fetchItems
-    case itemsLoaded([String])
-    case delayed
-    case asyncAction
-}
+    enum CancelID { case tracked }
 
-// MARK: - Test Reducer
+    let gate: Gate
 
-let testReducer = Reducer<TestState, TestAction> { state, action in
-    switch action {
-    case .increment:
-        state.count += 1
-        return .none
-        
-    case .decrement:
-        state.count -= 1
-        return .none
-        
-    case .setName(let name):
-        state.name = name
-        return .none
-        
-    case .setLoading(let loading):
-        state.isLoading = loading
-        return .none
-        
-    case .addItem(let item):
-        state.items.append(item)
-        return .none
-        
-    case .removeItem(let index):
-        guard index < state.items.count else { return .none }
-        state.items.remove(at: index)
-        return .none
-        
-    case .reset:
-        state = TestState()
-        return .none
-        
-    case .fetchItems:
-        state.isLoading = true
-        return .task {
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            return .itemsLoaded(["A", "B", "C"])
-        }
-        
-    case .itemsLoaded(let items):
-        state.isLoading = false
-        state.items = items
-        return .none
-        
-    case .delayed:
-        return .delay(0.1, action: .increment)
-        
-    case .asyncAction:
-        return .fireAndForget {
-            try? await Task.sleep(nanoseconds: 50_000_000)
-        }
-    }
-}
-
-// MARK: - Store Tests
-
-@MainActor
-final class StoreTests: XCTestCase {
-    
-    // MARK: - Basic Tests
-    
-    func testInitialState() async {
-        let store = Store(
-            initialState: TestState(count: 5),
-            reducer: testReducer
-        )
-        
-        XCTAssertEqual(store.state.count, 5)
-        XCTAssertEqual(store.state.name, "")
-        XCTAssertFalse(store.state.isLoading)
-    }
-    
-    func testSendAction() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        store.send(.increment)
-        XCTAssertEqual(store.state.count, 1)
-        
-        store.send(.increment)
-        XCTAssertEqual(store.state.count, 2)
-        
-        store.send(.decrement)
-        XCTAssertEqual(store.state.count, 1)
-    }
-    
-    func testMultipleActions() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        store.send(.increment, .increment, .increment)
-        XCTAssertEqual(store.state.count, 3)
-    }
-    
-    func testStateReset() async {
-        let store = Store(
-            initialState: TestState(count: 10, name: "Test"),
-            reducer: testReducer
-        )
-        
-        store.send(.reset)
-        XCTAssertEqual(store.state.count, 0)
-        XCTAssertEqual(store.state.name, "")
-    }
-    
-    // MARK: - Effect Tests
-    
-    func testAsyncEffect() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        store.send(.fetchItems)
-        XCTAssertTrue(store.state.isLoading)
-        
-        // Wait for effect to complete
-        try? await Task.sleep(nanoseconds: 200_000_000)
-        
-        XCTAssertFalse(store.state.isLoading)
-        XCTAssertEqual(store.state.items, ["A", "B", "C"])
-    }
-    
-    func testFireAndForgetEffect() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        store.send(.asyncAction)
-        
-        // Effect should run but not change state
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        XCTAssertEqual(store.state.count, 0)
-    }
-    
-    func testDelayedEffect() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        store.send(.delayed)
-        XCTAssertEqual(store.state.count, 0) // Not yet incremented
-        
-        try? await Task.sleep(nanoseconds: 150_000_000)
-        XCTAssertEqual(store.state.count, 1) // Now incremented
-    }
-    
-    // MARK: - Time Travel Tests
-    
-    func testTimeTravel() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer,
-            configuration: .debug
-        )
-        
-        store.send(.increment)
-        store.send(.increment)
-        store.send(.increment)
-        
-        XCTAssertEqual(store.state.count, 3)
-        XCTAssertEqual(store.historyCount, 4) // Initial + 3 actions
-        
-        store.stepBack()
-        XCTAssertEqual(store.state.count, 2)
-        
-        store.stepBack()
-        XCTAssertEqual(store.state.count, 1)
-        
-        store.stepForward()
-        XCTAssertEqual(store.state.count, 2)
-        
-        store.goToStart()
-        XCTAssertEqual(store.state.count, 0)
-        
-        store.goToEnd()
-        XCTAssertEqual(store.state.count, 3)
-    }
-    
-    // MARK: - Binding Tests
-    
-    func testBinding() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        let binding = store.binding(
-            get: \.name,
-            send: { .setName($0) }
-        )
-        
-        binding.wrappedValue = "Hello"
-        XCTAssertEqual(store.state.name, "Hello")
-    }
-    
-    // MARK: - Scope Tests
-    
-    func testScope() async {
-        let store = Store(
-            initialState: TestState(count: 5),
-            reducer: testReducer
-        )
-        
-        let scopedStore = store.scope(state: \.count)
-        XCTAssertEqual(scopedStore.state, 5)
-        
-        store.send(.increment)
-        XCTAssertEqual(scopedStore.state, 6)
-    }
-    
-    // MARK: - Dispatch Count Tests
-    
-    func testDispatchCount() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        XCTAssertEqual(store.dispatchCount, 0)
-        
-        store.send(.increment)
-        XCTAssertEqual(store.dispatchCount, 1)
-        
-        store.send(.decrement)
-        XCTAssertEqual(store.dispatchCount, 2)
-    }
-}
-
-// MARK: - Reducer Tests
-
-final class ReducerTests: XCTestCase {
-    
-    func testReducerCombine() {
-        var state = TestState()
-        
-        let reducer1 = Reducer<TestState, TestAction> { state, action in
-            if case .increment = action {
-                state.count += 1
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .start(let name):
+            state.log.append("start \(name)")
+            return .run { [gate] send in
+                await gate.wait()
+                send(.finished(name))
             }
+        case .startTracked(let name, let cancelInFlight):
+            state.log.append("start \(name)")
+            return .run(id: CancelID.tracked, cancelInFlight: cancelInFlight) { [gate] send in
+                await gate.wait()
+                send(.finished(name))
+            }
+        case .cancelTracked:
+            return .cancel(id: CancelID.tracked)
+        case .finished(let name):
+            state.log.append("finished \(name)")
             return .none
-        }
-        
-        let reducer2 = Reducer<TestState, TestAction> { state, action in
-            if case .increment = action {
-                state.name = "Incremented"
+        case .chain(let remaining):
+            state.log.append("chain \(remaining)")
+            return remaining > 0 ? .send(.chain(remaining - 1)) : .none
+        case .loopForever:
+            return .send(.loopForever)
+        case .fail:
+            return .run { _ in throw SecretError(secret: "token=abc123") }
+        case .failHandled:
+            return .run { _ in
+                throw SecretError(secret: "boom")
+            } catch: { error, send in
+                send(.handled((error as? SecretError)?.secret ?? "?"))
             }
+        case .handled(let message):
+            state.log.append("handled \(message)")
             return .none
-        }
-        
-        let combined = Reducer.combine(reducer1, reducer2)
-        _ = combined.reduce(&state, .increment)
-        
-        XCTAssertEqual(state.count, 1)
-        XCTAssertEqual(state.name, "Incremented")
-    }
-    
-    func testReducerFilter() {
-        var state = TestState()
-        
-        let filteredReducer = testReducer.filter { action in
-            if case .decrement = action { return false }
-            return true
-        }
-        
-        _ = filteredReducer.reduce(&state, .increment)
-        XCTAssertEqual(state.count, 1)
-        
-        _ = filteredReducer.reduce(&state, .decrement)
-        XCTAssertEqual(state.count, 1) // Decrement was filtered
-    }
-    
-    func testReducerWhen() {
-        var state = TestState(count: 10)
-        
-        let conditionalReducer = testReducer.when { $0.count < 5 }
-        
-        _ = conditionalReducer.reduce(&state, .increment)
-        XCTAssertEqual(state.count, 10) // Not processed, count >= 5
-        
-        state.count = 3
-        _ = conditionalReducer.reduce(&state, .increment)
-        XCTAssertEqual(state.count, 4) // Processed, count < 5
-    }
-}
-
-// MARK: - Effect Tests
-
-final class EffectTests: XCTestCase {
-    
-    func testEffectNone() {
-        let effect = Effect<TestAction>.none
-        if case .none = effect.kind {
-            // Expected
-        } else {
-            XCTFail("Expected none effect")
-        }
-    }
-    
-    func testEffectTask() async throws {
-        var result: TestAction?
-        
-        let effect = Effect<TestAction>.task {
-            return .increment
-        }
-        
-        if case .task(let work) = effect.kind {
-            result = try await work()
-        }
-        
-        XCTAssertEqual(result, .increment)
-    }
-    
-    func testEffectMerge() {
-        let effect1 = Effect<TestAction>.send(.increment)
-        let effect2 = Effect<TestAction>.send(.decrement)
-        
-        let merged = Effect.merge(effect1, effect2)
-        
-        if case .combine(let effects) = merged.kind {
-            XCTAssertEqual(effects.count, 2)
-        } else {
-            XCTFail("Expected combined effect")
-        }
-    }
-    
-    func testEffectMap() async throws {
-        enum LocalAction {
-            case local
-        }
-        
-        enum ParentAction {
-            case child(LocalAction)
-        }
-        
-        let localEffect = Effect<LocalAction>.send(.local)
-        let parentEffect = localEffect.map { ParentAction.child($0) }
-        
-        if case .task(let work) = parentEffect.kind {
-            let action = try await work()
-            if case .child(.local) = action {
-                // Expected
-            } else {
-                XCTFail("Expected mapped action")
-            }
+        case .sendTwice:
+            return .merge(.send(.finished("one")), .send(.finished("two")))
         }
     }
 }
 
-// MARK: - State Diff Tests
+/// Holds effects until the test opens it. Cancelling a waiting task ends its wait.
+final class Gate: Sendable {
+    private let clock = TestClock()
 
-final class StateDiffTests: XCTestCase {
-    
-    func testStateDiff() {
-        let differ = StateDiffer<TestState>()
-        
-        let oldState = TestState(count: 0, name: "Old")
-        let newState = TestState(count: 1, name: "New")
-        
-        let diff = differ.diff(from: oldState, to: newState)
-        
-        XCTAssertTrue(diff.hasChanges)
-        XCTAssertEqual(diff.modifiedCount, 2) // count and name changed
+    func wait() async {
+        try? await clock.sleep(for: .seconds(1))
     }
-    
-    func testStateDiffNoChanges() {
-        let differ = StateDiffer<TestState>()
-        
-        let state = TestState(count: 5)
-        let diff = differ.diff(from: state, to: state)
-        
-        XCTAssertFalse(diff.hasChanges)
+
+    func open() {
+        clock.advance(by: .seconds(1))
     }
+
+    func waitForWaiters(_ count: Int) async {
+        await clock.waitForSleepers(count: count)
+    }
+
+    var waiterCount: Int { clock.sleeperCount }
 }
 
-// MARK: - TestStore Tests
-
-@MainActor
-final class TestStoreTests: XCTestCase {
-    
-    func testBasicTestStore() async {
-        let store = TestStore(
-            initialState: TestState(count: 0),
-            reducer: testReducer
-        )
-        
-        await store.send(.increment) {
-            $0.count = 1
-        }
-        
-        await store.send(.increment) {
-            $0.count = 2
-        }
-        
-        store.assert(\.count, equals: 2)
-    }
-    
-    func testTestStoreWithEffect() async {
-        let store = TestStore(
-            initialState: TestState(),
-            reducer: testReducer
-        )
-        
-        await store.send(.fetchItems) {
-            $0.isLoading = true
-        }
-        
-        await store.receive(.itemsLoaded(["A", "B", "C"])) {
-            $0.isLoading = false
-            $0.items = ["A", "B", "C"]
-        }
-    }
-}
-
-// MARK: - Middleware Tests
-
-final class MiddlewareTests: XCTestCase {
-    
-    @MainActor
-    func testLoggingMiddleware() async {
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer,
-            middleware: [
-                AnyMiddleware(LoggingMiddleware<TestState, TestAction>())
-            ]
-        )
-        
-        store.send(.increment)
-        XCTAssertEqual(store.state.count, 1)
-    }
-    
-    @MainActor
-    func testValidationMiddleware() async {
-        var rejectedCount = 0
-        
-        let validationMiddleware = ValidationMiddleware<TestState, TestAction>(
-            validate: { action, _ in
-                if case .decrement = action {
-                    return .invalid("Decrement not allowed")
-                }
-                return .valid
-            },
-            onInvalid: { _, _ in
-                rejectedCount += 1
-            }
-        )
-        
-        let store = Store(
-            initialState: TestState(count: 5),
-            reducer: testReducer,
-            middleware: [AnyMiddleware(validationMiddleware)]
-        )
-        
-        store.send(.increment)
-        XCTAssertEqual(store.state.count, 6)
-        
-        store.send(.decrement)
-        XCTAssertEqual(store.state.count, 6) // Blocked
-        XCTAssertEqual(rejectedCount, 1)
-    }
-    
-    @MainActor
-    func testRecordingMiddleware() async {
-        let recorder = RecordingMiddleware<TestState, TestAction>()
-        
-        let store = Store(
-            initialState: TestState(),
-            reducer: testReducer,
-            middleware: [AnyMiddleware(recorder)]
-        )
-        
-        store.send(.increment)
-        store.send(.setName("Test"))
-        store.send(.decrement)
-        
-        XCTAssertEqual(recorder.records.count, 3)
-        XCTAssertEqual(recorder.records[0].action, .increment)
-        XCTAssertEqual(recorder.records[1].action, .setName("Test"))
-        XCTAssertEqual(recorder.records[2].action, .decrement)
-    }
-}
-
-// MARK: - IdentifiedArray Tests
-
-final class IdentifiedArrayTests: XCTestCase {
-    
-    struct Item: Identifiable, Equatable {
+/// A feature whose state compares equal before and after some changes.
+struct Labels: Reducer {
+    /// Equal when the ids match, whatever the titles.
+    struct Label: Equatable {
         let id: Int
-        var name: String
+        var title: String
+
+        static func == (lhs: Label, rhs: Label) -> Bool { lhs.id == rhs.id }
     }
-    
-    func testIdentifiedArrayBasic() {
-        var array = IdentifiedArray<Int, Item>([
-            Item(id: 1, name: "One"),
-            Item(id: 2, name: "Two")
-        ])
-        
-        XCTAssertEqual(array.count, 2)
-        XCTAssertEqual(array[id: 1]?.name, "One")
-        XCTAssertEqual(array[id: 2]?.name, "Two")
-        
-        array[id: 1]?.name = "Updated"
-        XCTAssertEqual(array[id: 1]?.name, "Updated")
+
+    struct State: Equatable {
+        var labels = [Label(id: 1, title: "old")]
+        var score = 0.0
     }
-    
-    func testIdentifiedArrayAppend() {
-        var array = IdentifiedArray<Int, Item>()
-        
-        array.append(Item(id: 1, name: "First"))
-        array.append(Item(id: 2, name: "Second"))
-        
-        XCTAssertEqual(array.count, 2)
-        XCTAssertEqual(array[0].name, "First")
-        XCTAssertEqual(array[1].name, "Second")
+
+    enum Action {
+        case rename(String)
+        case setScore(Double)
     }
-    
-    func testIdentifiedArrayRemove() {
-        var array = IdentifiedArray<Int, Item>([
-            Item(id: 1, name: "One"),
-            Item(id: 2, name: "Two"),
-            Item(id: 3, name: "Three")
-        ])
-        
-        array.remove(id: 2)
-        
-        XCTAssertEqual(array.count, 2)
-        XCTAssertNil(array[id: 2])
+
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .rename(let title): state.labels[0].title = title
+        case .setScore(let score): state.score = score
+        }
+        return .none
+    }
+}
+
+@Suite("Store")
+@MainActor
+struct StoreTests {
+    @Test("The state has changed when send returns")
+    func synchronousUpdate() {
+        let store = Store(initialState: Counter.State(), reducer: Counter(facts: .local))
+        store.send(.incrementTapped)
+        store.send(.incrementTapped)
+        store.send(.decrementTapped)
+        #expect(store.count == 1)
+    }
+
+    @Test("Actions sent with Effect.send are processed, in order, before send returns")
+    func effectSend() {
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: Gate()))
+        store.send(.chain(2))
+        #expect(store.log == ["chain 2", "chain 1", "chain 0"])
+        store.send(.sendTwice)
+        #expect(store.log.suffix(2) == ["finished one", "finished two"])
+    }
+
+    @Test("finish() waits for the effects of a send and their actions")
+    func finishWaits() async {
+        let gate = Gate()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: gate))
+        let task = store.send(.start("a"))
+        await gate.waitForWaiters(1)
+        gate.open()
+        await task.finish()
+        #expect(store.log == ["start a", "finished a"])
+    }
+
+    @Test("Cancelling a StoreTask cancels its effects, and their late actions are ignored")
+    func cancelStoreTask() async {
+        let gate = Gate()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: gate))
+        let task = store.send(.start("a"))
+        await gate.waitForWaiters(1)
+        task.cancel()
+        await task.finish()
+        #expect(task.isCancelled)
+        #expect(store.log == ["start a"])
+    }
+
+    @Test("A StoreTask without effects is not cancelled")
+    func emptyStoreTask() async {
+        let store = Store(initialState: Counter.State(), reducer: Counter(facts: .local))
+        let task = store.send(.incrementTapped)
+        #expect(!task.isCancelled)
+        await task.finish()
+    }
+
+    @Test("cancel(id:) cancels the running effects with that id")
+    func cancelByID() async {
+        let gate = Gate()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: gate))
+        let first = store.send(.startTracked("a", cancelInFlight: false))
+        let second = store.send(.startTracked("b", cancelInFlight: false))
+        await gate.waitForWaiters(2)
+        store.send(.cancelTracked)
+        await first.finish()
+        await second.finish()
+        #expect(store.log == ["start a", "start b"])
+        #expect(gate.waiterCount == 0)
+    }
+
+    @Test("cancelInFlight keeps only the newest effect with the same id")
+    func cancelInFlight() async {
+        let gate = Gate()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: gate))
+        let first = store.send(.startTracked("a", cancelInFlight: true))
+        let second = store.send(.startTracked("b", cancelInFlight: true))
+        await first.finish()
+        #expect(first.isCancelled)
+        await gate.waitForWaiters(1)
+        gate.open()
+        await second.finish()
+        #expect(store.log == ["start a", "start b", "finished b"])
+    }
+
+    @Test("Effects are cancelled when the store is deallocated")
+    func deallocationCancels() async {
+        let gate = Gate()
+        var store: Store<Jobs.State, Jobs.Action>? = Store(initialState: Jobs.State(), reducer: Jobs(gate: gate))
+        let task = store?.send(.start("a"))
+        await gate.waitForWaiters(1)
+        store = nil
+        await task?.finish()
+        #expect(task?.isCancelled == true)
+        #expect(gate.waiterCount == 0)
+    }
+
+    @Test("Actions that send each other forever stop at the limit and are reported")
+    func synchronousLoopLimit() {
+        let issues = Collected<StoreIssue>()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: Gate())) { issues.append($0) }
+        store.send(.loopForever)
+        #expect(issues.values == [StoreIssue(
+            kind: .synchronousActionLimitExceeded(limit: StoreLimits.synchronousActions),
+            actionType: String(reflecting: Jobs.Action.self)
+        )])
+        // The store still works afterwards.
+        store.send(.chain(0))
+        #expect(store.log == ["chain 0"])
+    }
+
+    @Test("An unhandled effect error is reported with type names only, never with its values")
+    func unhandledErrorIsReportedWithoutValues() async throws {
+        let issues = Collected<StoreIssue>()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: Gate())) { issues.append($0) }
+        await store.send(.fail).finish()
+        let issue = try #require(issues.values.first)
+        #expect(issue.kind == .unhandledEffectError(errorType: String(reflecting: SecretError.self)))
+        #expect(!issue.description.contains("abc123"))
+        #expect(!issue.description.contains("token"))
+    }
+
+    @Test("Type names in an issue and its log line hold no memory address")
+    func issueNamesHaveNoAddress() {
+        struct LocalError: Error {}
+        let reflected = String(reflecting: LocalError.self)
+        #expect(reflected.contains("(unknown context at $"))
+
+        #expect(StoreIssue.typeName(of: LocalError()).hasSuffix("(unknown context).LocalError"))
+        let issue = StoreIssue(kind: .unhandledEffectError(errorType: reflected), actionType: reflected)
+        #expect(!StoreIssue.logMessage(for: issue).contains("$"))
+    }
+
+    @Test("A catch handler turns an effect error into an action")
+    func handledError() async {
+        let issues = Collected<StoreIssue>()
+        let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: Gate())) { issues.append($0) }
+        await store.send(.failHandled).finish()
+        #expect(store.log == ["handled boom"])
+        #expect(issues.values.isEmpty)
+    }
+
+    @Test("The quick start counter loads a fact through its effect")
+    func counterFact() async {
+        let store = Store(
+            initialState: Counter.State(count: 4),
+            reducer: Counter(facts: NumberFacts { "\($0) is a test number." })
+        )
+        await store.send(.factTapped).finish()
+        #expect(store.fact == "4 is a test number.")
+        #expect(!store.isLoadingFact)
+    }
+
+    @Test("A change that == does not see is still kept")
+    func changeInvisibleToEquatable() {
+        let store = Store(initialState: Labels.State(), reducer: Labels())
+        store.send(.rename("new"))
+        #expect(store.state.labels[0].title == "new")
+
+        store.send(.setScore(-0.0))
+        #expect(store.state.score.sign == .minus)
+    }
+
+    @Test("send(_:animation:) processes the action like send(_:)")
+    func sendWithAnimation() {
+        let store = Store(initialState: Counter.State(), reducer: Counter(facts: .local))
+        store.send(.incrementTapped, animation: .default)
+        #expect(store.count == 1)
     }
 }

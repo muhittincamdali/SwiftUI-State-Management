@@ -1,0 +1,13 @@
+version: 1
+builder:
+  configs:
+    - platform: ios
+      scheme: SwiftUIStateManagement-Package
+      documentation_targets: [SwiftUIStateManagement, SwiftUIStateManagementTesting]
+    - platform: macos-spm
+    - platform: tvos
+      scheme: SwiftUIStateManagement-Package
+    - platform: watchos
+      scheme: SwiftUIStateManagement-Package
+    - platform: visionos
+      scheme: SwiftUIStateManagement-Package
