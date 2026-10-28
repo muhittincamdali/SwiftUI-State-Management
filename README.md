@@ -62,6 +62,9 @@ In Xcode, choose **File › Add Package Dependencies…** and enter the reposito
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
+Until 2.0.0 is released, set **Dependency Rule** to **Branch** and enter `main`: the default rule
+picks the latest release, 1.0.0, which still has the old API.
+
 **2. Import the module**
 
 ```swift
@@ -140,8 +143,17 @@ struct CounterView: View {
 }
 ```
 
-`NumberFacts` stands for your service: a struct with an async `fact(Int)` closure, so tests can
-pass a fake. Create the store once, where the screen's lifetime begins:
+`NumberFacts` stands for your service: a struct with an async `fact(Int)` closure, so tests can pass
+a fake. A version that needs no network:
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+Create the store once, where the screen's lifetime begins:
 
 ```swift
 @main
@@ -167,6 +179,9 @@ target:
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Until 2.0.0 is released, set **Dependency Rule** to **Branch** and enter `main`: the default rule
+picks the latest release, 1.0.0, which still has the old API.
 
 Or add it to the `dependencies` in your `Package.swift`:
 

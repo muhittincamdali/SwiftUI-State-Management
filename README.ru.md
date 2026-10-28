@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -66,6 +66,9 @@ SwiftUI State Management — небольшой пакет на Swift 6 для �
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Пока не вышла версия 2.0.0, выберите в **Dependency Rule** вариант **Branch** и введите `main`:
+правило по умолчанию берёт последний релиз 1.0.0, в котором ещё старый API.
 
 **2. Импортируйте модуль**
 
@@ -145,9 +148,17 @@ struct CounterView: View {
 }
 ```
 
-`NumberFacts` обозначает ваш сервис: struct с асинхронным замыканием `fact(Int)`, чтобы тесты
-могли передать подставную реализацию. Создайте store один раз — там, где начинается время жизни
-экрана:
+`NumberFacts` обозначает ваш сервис: struct с асинхронным замыканием `fact(Int)`, чтобы тесты могли
+передать подставную реализацию. Версия, которой не нужна сеть:
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+Создайте store один раз — там, где начинается время жизни экрана:
 
 ```swift
 @main
@@ -173,6 +184,9 @@ struct CounterApp: App {
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Пока не вышла версия 2.0.0, выберите в **Dependency Rule** вариант **Branch** и введите `main`:
+правило по умолчанию берёт последний релиз 1.0.0, в котором ещё старый API.
 
 Или добавьте его в `dependencies` вашего `Package.swift`:
 

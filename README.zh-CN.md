@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -45,6 +45,8 @@ SwiftUI State Management 是一个小巧的 Swift 6 包，用于在 iOS 17 及�
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+在 2.0.0 发布之前，请把 **Dependency Rule** 设为 **Branch** 并输入 `main`：默认规则会选择最新发布的 1.0.0，它仍是旧的 API。
 
 **2. 导入模块**
 
@@ -123,7 +125,16 @@ struct CounterView: View {
 }
 ```
 
-`NumberFacts` 代表你自己的服务：一个带有异步 `fact(Int)` 闭包的结构体，这样测试就可以传入一个假的实现。请只创建一次 store，位置就在界面生命周期开始的地方：
+`NumberFacts` 代表你自己的服务：一个带有异步 `fact(Int)` 闭包的结构体，这样测试就可以传入一个假的实现。一个不需要网络的版本：
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+请只创建一次 store，位置就在界面生命周期开始的地方：
 
 ```swift
 @main
@@ -147,6 +158,8 @@ struct CounterApp: App {
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+在 2.0.0 发布之前，请把 **Dependency Rule** 设为 **Branch** 并输入 `main`：默认规则会选择最新发布的 1.0.0，它仍是旧的 API。
 
 或者把它添加到 `Package.swift` 的 `dependencies` 中：
 

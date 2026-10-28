@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -67,6 +67,9 @@ Xcode'da **File › Add Package Dependencies…** menüsünü seçin ve depo adr
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+2.0.0 yayımlanana kadar **Dependency Rule** seçeneğini **Branch** yapın ve `main` girin: varsayılan
+kural, hâlâ eski API'yi içeren son sürümü (1.0.0) seçer.
 
 **2. Modülü içe aktarın**
 
@@ -147,8 +150,16 @@ struct CounterView: View {
 ```
 
 `NumberFacts`, sizin servisinizi temsil eder: asenkron bir `fact(Int)` closure'ı olan bir struct;
-böylece testler sahte bir uygulama geçirebilir. Store'u ekranın ömrünün başladığı yerde, bir
-kez oluşturun:
+böylece testler sahte bir uygulama geçirebilir. Ağ gerektirmeyen bir sürüm:
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+Store'u ekranın ömrünün başladığı yerde, bir kez oluşturun:
 
 ```swift
 @main
@@ -174,6 +185,9 @@ test hedefinize ekleyin:
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+2.0.0 yayımlanana kadar **Dependency Rule** seçeneğini **Branch** yapın ve `main` girin: varsayılan
+kural, hâlâ eski API'yi içeren son sürümü (1.0.0) seçer.
 
 Ya da `Package.swift` dosyanızdaki `dependencies` listesine ekleyin:
 

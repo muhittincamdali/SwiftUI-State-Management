@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -66,6 +66,9 @@ Wähle in Xcode **File › Add Package Dependencies…** und gib die Repository-
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Bis 2.0.0 erscheint, stelle **Dependency Rule** auf **Branch** und gib `main` ein: Die Standardregel
+wählt das letzte Release, 1.0.0, das noch die alte API enthält.
 
 **2. Modul importieren**
 
@@ -145,9 +148,17 @@ struct CounterView: View {
 }
 ```
 
-`NumberFacts` steht für deinen Service: ein Struct mit einer asynchronen `fact(Int)`-Closure,
-sodass Tests eine Attrappe übergeben können. Erstelle den Store einmal, dort, wo die Lebensdauer
-des Bildschirms beginnt:
+`NumberFacts` steht für deinen Service: ein Struct mit einer asynchronen `fact(Int)`-Closure, sodass
+Tests eine Attrappe übergeben können. Eine Version, die kein Netzwerk braucht:
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+Erstelle den Store einmal, dort, wo die Lebensdauer des Bildschirms beginnt:
 
 ```swift
 @main
@@ -173,6 +184,9 @@ hinzu:
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Bis 2.0.0 erscheint, stelle **Dependency Rule** auf **Branch** und gib `main` ein: Die Standardregel
+wählt das letzte Release, 1.0.0, das noch die alte API enthält.
 
 Oder füge es den `dependencies` in deiner `Package.swift` hinzu:
 

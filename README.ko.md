@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -63,6 +63,9 @@ Xcode에서 **File › Add Package Dependencies…**를 선택하고 저장소 U
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+2.0.0이 출시될 때까지는 **Dependency Rule**을 **Branch**로 바꾸고 `main`을 입력하세요. 기본 규칙은 최신 릴리스인 1.0.0을 고르는데, 이
+버전에는 이전 API가 그대로 있습니다.
 
 **2. 모듈 가져오기**
 
@@ -142,8 +145,17 @@ struct CounterView: View {
 }
 ```
 
-`NumberFacts`는 여러분의 서비스를 나타냅니다. 비동기 `fact(Int)` 클로저를 가진 struct이므로,
-테스트에서 가짜 구현을 넘길 수 있습니다. store는 화면의 수명이 시작되는 곳에서 한 번만 만드세요.
+`NumberFacts`는 여러분의 서비스를 나타냅니다. 비동기 `fact(Int)` 클로저를 가진 struct이므로, 테스트에서 가짜 구현을 넘길 수 있습니다. 네트워크가 필요
+없는 버전은 다음과 같습니다.
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+store는 화면의 수명이 시작되는 곳에서 한 번만 만드세요.
 
 ```swift
 @main
@@ -168,6 +180,9 @@ Xcode에서 **File › Add Package Dependencies…**를 선택하고 저장소 U
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+2.0.0이 출시될 때까지는 **Dependency Rule**을 **Branch**로 바꾸고 `main`을 입력하세요. 기본 규칙은 최신 릴리스인 1.0.0을 고르는데, 이
+버전에는 이전 API가 그대로 있습니다.
 
 또는 `Package.swift`의 `dependencies`에 추가하세요.
 

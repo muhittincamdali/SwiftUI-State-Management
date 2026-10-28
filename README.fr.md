@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -66,6 +66,9 @@ Dans Xcode, choisissez **File › Add Package Dependencies…** et saisissez l�
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Jusqu’à la sortie de la 2.0.0, réglez **Dependency Rule** sur **Branch** et saisissez `main` : la
+règle par défaut choisit la dernière version publiée, la 1.0.0, qui a encore l’ancienne API.
 
 **2. Importer le module**
 
@@ -145,9 +148,17 @@ struct CounterView: View {
 }
 ```
 
-`NumberFacts` représente votre service : un struct avec une closure asynchrone `fact(Int)`, afin
-que les tests puissent en passer une factice. Créez le store une seule fois, là où commence la
-durée de vie de l’écran :
+`NumberFacts` représente votre service : un struct avec une closure asynchrone `fact(Int)`, afin que
+les tests puissent en passer une factice. Une version qui n’a pas besoin du réseau :
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+Créez le store une seule fois, là où commence la durée de vie de l’écran :
 
 ```swift
 @main
@@ -173,6 +184,9 @@ de tests :
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Jusqu’à la sortie de la 2.0.0, réglez **Dependency Rule** sur **Branch** et saisissez `main` : la
+règle par défaut choisit la dernière version publiée, la 1.0.0, qui a encore l’ancienne API.
 
 Ou ajoutez-le aux `dependencies` de votre `Package.swift` :
 

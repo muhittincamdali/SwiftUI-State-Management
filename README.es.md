@@ -1,4 +1,4 @@
-<!-- i18n-source: README.md@cb1a4ebaa23d3b3d094095fce21161ccf8f401f7 status=reviewed -->
+<!-- i18n-source: README.md@b40031a37de449c4b6b347a51e557e63c1f5981a status=reviewed -->
 <!-- brand:start -->
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg"><img src="https://raw.githubusercontent.com/muhittincamdali/SwiftUI-State-Management/main/.github/brand/banner-light.svg" alt="SwiftUI State Management: Unidirectional state for SwiftUI on Observation, with testable stores, navigation and persistence."></picture></p>
@@ -66,6 +66,9 @@ En Xcode, elige **File › Add Package Dependencies…** e introduce la URL del 
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Hasta que se publique la 2.0.0, cambia **Dependency Rule** a **Branch** e introduce `main`: la regla
+predeterminada elige la última versión publicada, la 1.0.0, que aún tiene la API antigua.
 
 **2. Importa el módulo**
 
@@ -146,7 +149,16 @@ struct CounterView: View {
 ```
 
 `NumberFacts` representa tu servicio: un struct con un closure asíncrono `fact(Int)`, para que las
-pruebas puedan pasar uno falso. Crea el store una sola vez, donde empieza la vida de la pantalla:
+pruebas puedan pasar uno falso. Una versión que no necesita red:
+
+```swift
+struct NumberFacts: Sendable {
+    var fact: @Sendable (Int) async throws -> String
+    static let local = NumberFacts { "\($0) is a number." }
+}
+```
+
+Crea el store una sola vez, donde empieza la vida de la pantalla:
 
 ```swift
 @main
@@ -172,6 +184,9 @@ pruebas:
 ```text
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
+
+Hasta que se publique la 2.0.0, cambia **Dependency Rule** a **Branch** e introduce `main`: la regla
+predeterminada elige la última versión publicada, la 1.0.0, que aún tiene la API antigua.
 
 O añádelo a `dependencies` en tu `Package.swift`:
 
