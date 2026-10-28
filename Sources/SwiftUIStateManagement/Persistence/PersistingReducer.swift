@@ -21,7 +21,9 @@ extension Reducer {
     ///
     /// - Parameters:
     ///   - keyPath: The part of the state to save. Its value must be `Codable` and `Equatable`;
-    ///     the reducer saves when the value after an action differs from the value before.
+    ///     the reducer saves when the value after an action differs from the value before. `==`
+    ///     must compare every property that is encoded: a change that `==` does not see, such as
+    ///     a new title for an item that compares by `id` only, is not written.
     ///   - key: The name, version and size limit of the saved value.
     ///   - storage: Where to save.
     ///   - debounce: How long the value must stay unchanged before it is written. `.zero`

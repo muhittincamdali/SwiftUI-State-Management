@@ -54,7 +54,9 @@ let store = Store(
 )
 ```
 
-The reducer compares the value before and after each action and saves only when it changed.
+The reducer compares the value before and after each action with `==` and saves only when it
+changed, so `==` must compare every property that is saved. A type whose `==` compares only an
+`id` is not written when only its other properties change.
 Saving is an effect: it encodes and writes off the main actor. Writes for the same key keep
 their order, so a slow write can never replace a newer value with an older one.
 
