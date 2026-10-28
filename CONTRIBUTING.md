@@ -1,59 +1,71 @@
 # Contributing to SwiftUI State Management
 
-First off, thank you for considering contributing! 🎉
+Thank you for helping. This guide covers what you need to build, test and change the package.
 
-## How to Contribute
+## Ground rules
 
-### Reporting Bugs
+- Be kind; the [code of conduct](CODE_OF_CONDUCT.md) applies everywhere in the project.
+- Report security problems privately, as described in [SECURITY.md](SECURITY.md).
+- Open an issue before a large change, so we can agree on the API first.
 
-1. Check if the bug has already been reported in [Issues](https://github.com/muhittinpalamutcu/SwiftUI-State-Management/issues)
-2. If not, create a new issue with:
-   - A clear title and description
-   - Steps to reproduce
-   - Expected vs actual behavior
-   - Swift/Xcode version
-   - Code sample if applicable
+## Set up
 
-### Suggesting Features
+You need Xcode 26 or later (Swift 6.2).
 
-1. Open an issue with the "enhancement" label
-2. Describe the feature and its use case
-3. Explain why it would be valuable
+```sh
+git clone https://github.com/muhittincamdali/SwiftUI-State-Management.git
+cd SwiftUI-State-Management
+swift build
+swift test
+```
 
-### Pull Requests
+Open `Package.swift` in Xcode to work on the library, and
+`Examples/StateDemo/StateDemo.xcodeproj` to run the example app.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass: `swift test`
-6. Commit with clear messages: `git commit -m 'feat: add amazing feature'`
-7. Push and open a PR
+## Checks to run before a pull request
 
-## Code Style
+```sh
+swift test
+swift test --sanitize=thread
+xcodebuild test -scheme SwiftUIStateManagement-Package \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+xcodebuild docbuild -scheme SwiftUIStateManagement-Package -destination 'generic/platform=macOS'
+xcodebuild build -project Examples/StateDemo/StateDemo.xcodeproj \
+  -scheme StateDemo -destination 'generic/platform=iOS Simulator'
+```
 
-- Follow Swift API Design Guidelines
-- Use meaningful variable/function names
-- Add documentation for public APIs
-- Keep functions focused and small
+CI runs the same steps, builds for tvOS, watchOS and visionOS, and checks links.
 
-## Commit Messages
+## Writing code
 
-We use conventional commits:
+- Everything compiles in the Swift 6 language mode without warnings. Reducers, the store and
+  effect operations are main-actor isolated; keep it that way.
+- The observation rules in `RootCore` are the heart of the package: a key path may only be
+  compared on an old state when `MemoryLayout<State>.offset(of:)` says it is a chain of stored
+  properties. Add a test in `ObservationTests` for any change there.
+- Input from outside the app (saved data, URLs, sizes) is validated and rejected with an error,
+  not trapped on. Put a limit on anything that can grow with input.
+- Document every public symbol; `xcodebuild docbuild` must report no warnings.
 
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation only
-- `test:` Adding tests
-- `refactor:` Code refactoring
-- `chore:` Maintenance
+## Writing tests
 
-## Testing
+- Use Swift Testing. Drive time with `TestClock` and `waitForSleepers()`, never with
+  `Task.sleep` on the real clock.
+- Test features with `TestStore`, and test that `TestStore` itself fails where it should with
+  `withKnownIssue`.
+- Test the edge cases: cancellation before and during an effect, empty and oversized input,
+  values at the limits of `Int`, and state that shrinks while a view observes it.
 
-- Write tests for new features
-- Ensure existing tests pass
-- Aim for good coverage
+## README samples
 
-## Questions?
+The README's code comes from `Examples/StateDemo/StateDemo/ReadmeSamples.swift`, which the
+tests compile through a symbolic link. Change the sample there first, then copy it into the
+README. Regenerate the screenshots with `scripts/capture-example-screens.sh` when a demo screen
+changes.
 
-Feel free to open an issue for discussion!
+## Commits and pull requests
+
+- Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`,
+  `test:`, `ci:`), one change per commit, with a body that says why.
+- Add a line to the `Unreleased` section of [CHANGELOG.md](CHANGELOG.md) for every change a
+  user would notice.
