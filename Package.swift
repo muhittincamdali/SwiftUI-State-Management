@@ -12,9 +12,14 @@ let package = Package(
     ],
     products: [
         .library(name: "SwiftUIStateManagement", targets: ["SwiftUIStateManagement"]),
+        .library(name: "SwiftUIStateManagementTesting", targets: ["SwiftUIStateManagementTesting"]),
     ],
     targets: [
         .target(name: "SwiftUIStateManagement"),
+        .target(
+            name: "SwiftUIStateManagementTesting",
+            dependencies: ["SwiftUIStateManagement"]
+        ),
     ],
     swiftLanguageModes: [.v6]
 )
