@@ -45,8 +45,12 @@ remap = [
   '^https://github\.com/muhittincamdali/SwiftUI-State-Management/(?:blob|tree)/main/(.*)$ file:///home/runner/work/SwiftUI-State-Management/SwiftUI-State-Management/$1',
   # The article pages on GitHub Pages are built from the .docc articles by docs.yml after a push
   # to main, so a pull request that adds an article links to a page that is not online yet. Each
-  # article URL is checked against its source file instead; the documentation root stays a live
-  # check, so a site that is down still fails.
+  # article URL is checked against its source file instead.
+  # The two documentation roots are the same case until docs.yml has published the site for the
+  # first time (GitHub Pages answers 404 before that). Remove these two lines once the site is
+  # online, so a site that is down fails the check again.
+  '^https://muhittincamdali\.github\.io/SwiftUI-State-Management/documentation/swiftuistatemanagement/$ file:///home/runner/work/SwiftUI-State-Management/SwiftUI-State-Management/Sources/SwiftUIStateManagement/SwiftUIStateManagement.docc/SwiftUIStateManagement.md',
+  '^https://muhittincamdali\.github\.io/SwiftUI-State-Management/documentation/swiftuistatemanagementtesting/$ file:///home/runner/work/SwiftUI-State-Management/SwiftUI-State-Management/Sources/SwiftUIStateManagementTesting/SwiftUIStateManagementTesting.docc/SwiftUIStateManagementTesting.md',
   '^https://muhittincamdali\.github\.io/SwiftUI-State-Management/documentation/swiftuistatemanagement/gettingstarted$ file:///home/runner/work/SwiftUI-State-Management/SwiftUI-State-Management/Sources/SwiftUIStateManagement/SwiftUIStateManagement.docc/GettingStarted.md',
   '^https://muhittincamdali\.github\.io/SwiftUI-State-Management/documentation/swiftuistatemanagement/howobservationworks$ file:///home/runner/work/SwiftUI-State-Management/SwiftUI-State-Management/Sources/SwiftUIStateManagement/SwiftUIStateManagement.docc/HowObservationWorks.md',
   '^https://muhittincamdali\.github\.io/SwiftUI-State-Management/documentation/swiftuistatemanagement/choosinganapproach$ file:///home/runner/work/SwiftUI-State-Management/SwiftUI-State-Management/Sources/SwiftUIStateManagement/SwiftUIStateManagement.docc/ChoosingAnApproach.md',
