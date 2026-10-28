@@ -120,7 +120,7 @@ public final class TestStore<State: Equatable, Action> {
         if !received.isEmpty {
             recordFailure(
                 "\(received.count) received action(s) must be checked with receive before sending another action:\n"
-                    + received.map { "  \($0.action)" }.joined(separator: "\n"),
+                    + actionList(received.prefix(Difference.maximumLines).map { "\($0.action)" }, total: received.count),
                 at: location
             )
             received.removeAll()
@@ -343,12 +343,25 @@ public final class TestStore<State: Equatable, Action> {
         )
     }
 
+    /// Describes at most ``Difference/maximumLines`` actions, so a step costs the same however
+    /// many received actions wait to be checked.
     private func updateExitCheck() {
         exitCheck.update(
-            unreceived: received.map { "\($0.action)" },
+            unreceived: received.prefix(Difference.maximumLines).map { "\($0.action)" },
+            unreceivedCount: received.count,
             runningEffects: runner.runningCount
         )
     }
+}
+
+/// The actions in `shown`, one per line, and how many of `total` are not shown. Callers pass at
+/// most ``Difference/maximumLines`` actions, so the message is bounded like a state difference.
+private func actionList(_ shown: [String], total: Int) -> String {
+    var lines = shown.map { "  \($0)" }
+    if total > shown.count {
+        lines.append("  … \(total - shown.count) more")
+    }
+    return lines.joined(separator: "\n")
 }
 
 private struct Waiter {
@@ -360,6 +373,7 @@ private struct Waiter {
 private final class ExitCheck: Sendable {
     private struct Snapshot {
         var unreceived: [String] = []
+        var unreceivedCount = 0
         var runningEffects = 0
     }
 
@@ -370,16 +384,18 @@ private final class ExitCheck: Sendable {
         self.location = location
     }
 
-    func update(unreceived: [String], runningEffects: Int) {
-        snapshot.withLock { $0 = Snapshot(unreceived: unreceived, runningEffects: runningEffects) }
+    func update(unreceived: [String], unreceivedCount: Int, runningEffects: Int) {
+        snapshot.withLock {
+            $0 = Snapshot(unreceived: unreceived, unreceivedCount: unreceivedCount, runningEffects: runningEffects)
+        }
     }
 
     func report() {
         let current = snapshot.withLock { $0 }
-        if !current.unreceived.isEmpty {
+        if current.unreceivedCount > 0 {
             recordFailure(
-                "The store received \(current.unreceived.count) action(s) that the test did not check:\n"
-                    + current.unreceived.map { "  \($0)" }.joined(separator: "\n"),
+                "The store received \(current.unreceivedCount) action(s) that the test did not check:\n"
+                    + actionList(current.unreceived, total: current.unreceivedCount),
                 at: location
             )
         }

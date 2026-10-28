@@ -158,6 +158,25 @@ struct TestStoreTests {
         #expect(message.utf8.count < 20_000)
     }
 
+    @Test("A failure message lists at most maximumLines unchecked actions")
+    func boundedActionList() async {
+        let isBounded: @Sendable (Issue) -> Bool = { issue in
+            let text = issue.comments.map(\.rawValue).joined(separator: "\n")
+            return text.contains("… \(500 - Difference.maximumLines) more")
+                && text.split(separator: "\n").count <= Difference.maximumLines + 2
+        }
+        let store = TestStore(initialState: Jobs.State(), reducer: Jobs(gate: Gate()))
+        await store.send(.chain(500)) { $0.log = ["chain 500"] }
+        await withKnownIssue {
+            await store.send(.cancelTracked)
+        } matching: { isBounded($0) }
+
+        await withKnownIssue {
+            let leftUnchecked = TestStore(initialState: Jobs.State(), reducer: Jobs(gate: Gate()))
+            await leftUnchecked.send(.chain(500)) { $0.log = ["chain 500"] }
+        } matching: { isBounded($0) }
+    }
+
     @Test("The difference shows only the lines that changed")
     func differenceContent() {
         let message = Difference.lines(
