@@ -100,6 +100,7 @@ private struct TodoDetailView: View {
                     Button("Delete", role: .destructive) { store.send(.deleteTapped(id)) }
                 }
             }
+            .formStyle(.grouped)
             .navigationTitle(todo.title)
         } else {
             ContentUnavailableView("Deleted", systemImage: "trash")
@@ -118,6 +119,7 @@ private struct EditorView: View {
                     .focused($titleFocused)
                     .onSubmit { store.send(.editorSaveTapped) }
             }
+            .formStyle(.grouped)
             .navigationTitle("New todo")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

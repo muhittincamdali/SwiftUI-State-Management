@@ -82,6 +82,7 @@ struct RenderCountsView: View {
                     Text("Each card reads one property through the store. Tapping one card runs only that card's body: the store notifies observers per property.")
                 }
             }
+            .formStyle(.grouped)
             .navigationTitle("Observation")
         }
     }

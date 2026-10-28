@@ -9,7 +9,11 @@ struct StateDemoApp: App {
         WindowGroup {
             RootView(model: model)
                 .tint(.blue)
+                .preferredColorScheme(DemoLaunch.colorScheme)
         }
+        #if os(macOS)
+        .defaultSize(width: 440, height: 760)
+        #endif
     }
 }
 
@@ -27,6 +31,15 @@ enum DemoLaunch: Equatable {
     static var current: DemoLaunch {
         guard let name = UserDefaults.standard.string(forKey: "demo") else { return .normal }
         return .scenario(name)
+    }
+
+    /// `-appearance light` or `-appearance dark` fixes the color scheme for screenshots.
+    static var colorScheme: ColorScheme? {
+        switch UserDefaults.standard.string(forKey: "appearance") {
+        case "light": .light
+        case "dark": .dark
+        default: nil
+        }
     }
 }
 
@@ -73,6 +86,10 @@ final class AppModel {
         }
     }
 
+    var isPlayingScenario: Bool {
+        launch != .normal
+    }
+
     /// Plays the scenario named by `-demo`, with the same actions a user would send.
     func playScenario() async {
         guard case .scenario(let name) = launch else { return }
@@ -104,6 +121,51 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        content
+            .onOpenURL { url in
+                model.tab = .todos
+                model.todos.send(.openURL(url))
+            }
+            .onChange(of: scenePhase) { _, phase in
+                // Scene-based lifecycle: write pending saves before the app may be suspended.
+                if phase == .background {
+                    model.todos.send(.movedToBackground)
+                }
+            }
+            .task {
+                await model.playScenario()
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        #if os(macOS)
+        if model.isPlayingScenario {
+            // The macOS screenshots show one screen per window, without the tab bar.
+            screen(model.tab)
+        } else {
+            tabs
+        }
+        #else
+        tabs
+        #endif
+    }
+
+    @ViewBuilder
+    private func screen(_ tab: DemoTab) -> some View {
+        switch tab {
+        case .todos: TodosView(store: model.todos)
+        case .search: SearchView(store: model.search)
+        case .counter:
+            NavigationStack {
+                CounterView(store: model.counter)
+                    .navigationTitle("Counter")
+            }
+        case .observation: RenderCountsView(store: model.renderCounts)
+        }
+    }
+
+    private var tabs: some View {
         TabView(selection: $model.tab) {
             TodosView(store: model.todos)
                 .tabItem { Label("Todos", systemImage: "checklist") }
@@ -120,19 +182,6 @@ struct RootView: View {
             RenderCountsView(store: model.renderCounts)
                 .tabItem { Label("Observation", systemImage: "eye") }
                 .tag(DemoTab.observation)
-        }
-        .onOpenURL { url in
-            model.tab = .todos
-            model.todos.send(.openURL(url))
-        }
-        .onChange(of: scenePhase) { _, phase in
-            // Scene-based lifecycle: write pending saves before the app may be suspended.
-            if phase == .background {
-                model.todos.send(.movedToBackground)
-            }
-        }
-        .task {
-            await model.playScenario()
         }
     }
 }
