@@ -131,11 +131,19 @@ final class RootCore<R: Reducer>: StoreCore, Observable {
         return StoreTask(tasks: started)
     }
 
+    /// Stores the reducer's state and notifies the observers whose values changed.
+    ///
+    /// `==` only decides who is notified, never whether the state is kept: a type whose `==`
+    /// compares part of its value (an id, say), or `0.0 == -0.0`, would otherwise lose the
+    /// reducer's change.
     private func apply(_ newState: State) {
         let oldState = storage
         let changedMembers = members.values.filter { $0.hasChanged(oldState, newState) }
         let wholeStateChanged = !(areEqual(oldState, newState) ?? false)
-        guard wholeStateChanged || !changedMembers.isEmpty else { return }
+        guard wholeStateChanged || !changedMembers.isEmpty else {
+            storage = newState
+            return
+        }
 
         for member in changedMembers { member.willSet(self) }
         if wholeStateChanged { registrar.willSet(self, keyPath: \.observedState) }

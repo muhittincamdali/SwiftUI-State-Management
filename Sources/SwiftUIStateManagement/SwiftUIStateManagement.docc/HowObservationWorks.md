@@ -47,6 +47,11 @@ When `State` is `Equatable` and an action leaves it unchanged, the store notifie
 `State` is not `Equatable`, every action notifies the readers of ``Store/state``, but tracked
 properties are still compared one by one.
 
+`==` only decides who is notified: the store always keeps the state the reducer returns. A type
+whose `==` compares part of its value, such as only an `id`, still has its other changes kept,
+but a view that reads it is not updated when only those parts change. Make `==` compare the
+whole value.
+
 ### Keeping updates small
 
 - Make `State` and the types inside it `Equatable`.

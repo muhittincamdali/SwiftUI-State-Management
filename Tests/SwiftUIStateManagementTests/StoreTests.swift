@@ -86,6 +86,35 @@ final class Gate: Sendable {
     var waiterCount: Int { clock.sleeperCount }
 }
 
+/// A feature whose state compares equal before and after some changes.
+struct Labels: Reducer {
+    /// Equal when the ids match, whatever the titles.
+    struct Label: Equatable {
+        let id: Int
+        var title: String
+
+        static func == (lhs: Label, rhs: Label) -> Bool { lhs.id == rhs.id }
+    }
+
+    struct State: Equatable {
+        var labels = [Label(id: 1, title: "old")]
+        var score = 0.0
+    }
+
+    enum Action {
+        case rename(String)
+        case setScore(Double)
+    }
+
+    func reduce(into state: inout State, action: Action) -> Effect<Action> {
+        switch action {
+        case .rename(let title): state.labels[0].title = title
+        case .setScore(let score): state.score = score
+        }
+        return .none
+    }
+}
+
 @Suite("Store")
 @MainActor
 struct StoreTests {
@@ -221,6 +250,16 @@ struct StoreTests {
         await store.send(.factTapped).finish()
         #expect(store.fact == "4 is a test number.")
         #expect(!store.isLoadingFact)
+    }
+
+    @Test("A change that == does not see is still kept")
+    func changeInvisibleToEquatable() {
+        let store = Store(initialState: Labels.State(), reducer: Labels())
+        store.send(.rename("new"))
+        #expect(store.state.labels[0].title == "new")
+
+        store.send(.setScore(-0.0))
+        #expect(store.state.score.sign == .minus)
     }
 
     @Test("send(_:animation:) processes the action like send(_:)")
