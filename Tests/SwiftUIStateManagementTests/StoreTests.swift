@@ -222,14 +222,14 @@ struct StoreTests {
     }
 
     @Test("An unhandled effect error is reported with type names only, never with its values")
-    func unhandledErrorIsReportedWithoutValues() async {
+    func unhandledErrorIsReportedWithoutValues() async throws {
         let issues = Collected<StoreIssue>()
         let store = Store(initialState: Jobs.State(), reducer: Jobs(gate: Gate())) { issues.append($0) }
         await store.send(.fail).finish()
-        let issue = try? #require(issues.values.first)
-        #expect(issue?.kind == .unhandledEffectError(errorType: String(reflecting: SecretError.self)))
-        #expect(issue?.description.contains("abc123") == false)
-        #expect(issue?.description.contains("token") == false)
+        let issue = try #require(issues.values.first)
+        #expect(issue.kind == .unhandledEffectError(errorType: String(reflecting: SecretError.self)))
+        #expect(!issue.description.contains("abc123"))
+        #expect(!issue.description.contains("token"))
     }
 
     @Test("Type names in an issue and its log line hold no memory address")

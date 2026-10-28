@@ -121,7 +121,7 @@ struct ObservationTests {
             _ = store.count
         } onChange: {
             MainActor.assumeIsolated {
-                store.send(.setTitle("Changed by observer"))
+                _ = store.send(.setTitle("Changed by observer"))
             }
         }
         store.send(.setCount(1))
