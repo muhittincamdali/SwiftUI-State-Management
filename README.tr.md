@@ -68,9 +68,6 @@ Xcode'da **File › Add Package Dependencies…** menüsünü seçin ve depo adr
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-2.0.0 yayımlanana kadar **Dependency Rule** seçeneğini **Branch** yapın ve `main` girin: varsayılan
-kural, hâlâ eski API'yi içeren son sürümü (1.0.0) seçer.
-
 **2. Modülü içe aktarın**
 
 ```swift
@@ -186,14 +183,11 @@ test hedefinize ekleyin:
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-2.0.0 yayımlanana kadar **Dependency Rule** seçeneğini **Branch** yapın ve `main` girin: varsayılan
-kural, hâlâ eski API'yi içeren son sürümü (1.0.0) seçer.
-
 Ya da `Package.swift` dosyanızdaki `dependencies` listesine ekleyin:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [

@@ -67,9 +67,6 @@ SwiftUI State Management — небольшой пакет на Swift 6 для �
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-Пока не вышла версия 2.0.0, выберите в **Dependency Rule** вариант **Branch** и введите `main`:
-правило по умолчанию берёт последний релиз 1.0.0, в котором ещё старый API.
-
 **2. Импортируйте модуль**
 
 ```swift
@@ -185,14 +182,11 @@ struct CounterApp: App {
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-Пока не вышла версия 2.0.0, выберите в **Dependency Rule** вариант **Branch** и введите `main`:
-правило по умолчанию берёт последний релиз 1.0.0, в котором ещё старый API.
-
 Или добавьте его в `dependencies` вашего `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [

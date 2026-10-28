@@ -46,8 +46,6 @@ Xcode で **File › Add Package Dependencies…** を選び、リポジトリ�
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-2.0.0 がリリースされるまでは、**Dependency Rule** を **Branch** にして `main` を入力してください。既定のルールでは最新リリースの 1.0.0 が選ばれ、これは古い API のままです。
-
 **2. モジュールをインポートする**
 
 ```swift
@@ -159,13 +157,11 @@ Xcode で **File › Add Package Dependencies…** を選び、リポジトリ�
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-2.0.0 がリリースされるまでは、**Dependency Rule** を **Branch** にして `main` を入力してください。既定のルールでは最新リリースの 1.0.0 が選ばれ、これは古い API のままです。
-
 または、`Package.swift` の `dependencies` に追加します。
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [

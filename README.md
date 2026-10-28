@@ -62,9 +62,6 @@ In Xcode, choose **File › Add Package Dependencies…** and enter the reposito
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-Until 2.0.0 is released, set **Dependency Rule** to **Branch** and enter `main`: the default rule
-picks the latest release, 1.0.0, which still has the old API.
-
 **2. Import the module**
 
 ```swift
@@ -180,14 +177,11 @@ target:
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-Until 2.0.0 is released, set **Dependency Rule** to **Branch** and enter `main`: the default rule
-picks the latest release, 1.0.0, which still has the old API.
-
 Or add it to the `dependencies` in your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [

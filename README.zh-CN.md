@@ -46,8 +46,6 @@ SwiftUI State Management 是一个小巧的 Swift 6 包，用于在 iOS 17 及�
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-在 2.0.0 发布之前，请把 **Dependency Rule** 设为 **Branch** 并输入 `main`：默认规则会选择最新发布的 1.0.0，它仍是旧的 API。
-
 **2. 导入模块**
 
 ```swift
@@ -159,13 +157,11 @@ struct CounterApp: App {
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-在 2.0.0 发布之前，请把 **Dependency Rule** 设为 **Branch** 并输入 `main`：默认规则会选择最新发布的 1.0.0，它仍是旧的 API。
-
 或者把它添加到 `Package.swift` 的 `dependencies` 中：
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [

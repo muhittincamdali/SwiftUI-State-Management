@@ -64,9 +64,6 @@ Xcode에서 **File › Add Package Dependencies…**를 선택하고 저장소 U
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-2.0.0이 출시될 때까지는 **Dependency Rule**을 **Branch**로 바꾸고 `main`을 입력하세요. 기본 규칙은 최신 릴리스인 1.0.0을 고르는데, 이
-버전에는 이전 API가 그대로 있습니다.
-
 **2. 모듈 가져오기**
 
 ```swift
@@ -181,14 +178,11 @@ Xcode에서 **File › Add Package Dependencies…**를 선택하고 저장소 U
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-2.0.0이 출시될 때까지는 **Dependency Rule**을 **Branch**로 바꾸고 `main`을 입력하세요. 기본 규칙은 최신 릴리스인 1.0.0을 고르는데, 이
-버전에는 이전 API가 그대로 있습니다.
-
 또는 `Package.swift`의 `dependencies`에 추가하세요.
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [

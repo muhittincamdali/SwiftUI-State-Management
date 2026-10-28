@@ -67,9 +67,6 @@ No Xcode, escolha **File › Add Package Dependencies…** e informe a URL do re
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-Até o lançamento da 2.0.0, mude **Dependency Rule** para **Branch** e informe `main`: a regra padrão
-escolhe a versão mais recente, a 1.0.0, que ainda tem a API antiga.
-
 **2. Importe o módulo**
 
 ```swift
@@ -185,14 +182,11 @@ testes:
 https://github.com/muhittincamdali/SwiftUI-State-Management.git
 ```
 
-Até o lançamento da 2.0.0, mude **Dependency Rule** para **Branch** e informe `main`: a regra padrão
-escolhe a versão mais recente, a 1.0.0, que ainda tem a API antiga.
-
 Ou adicione-o às `dependencies` do seu `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", branch: "main")
+    .package(url: "https://github.com/muhittincamdali/SwiftUI-State-Management.git", from: "2.0.0")
 ],
 targets: [
     .target(name: "YourApp", dependencies: [
