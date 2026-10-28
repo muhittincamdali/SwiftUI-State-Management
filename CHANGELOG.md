@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-A rewrite on the Observation framework, to be released as 2.0.0. The sources on `main` since
+## [2.0.0] - 2026-10-28
+
+A rewrite on the Observation framework. The sources on `main` since
 June 2026 were a one-line `ObservableObject` store and unrelated stubs, and the README
 described APIs that did not exist. Nothing from 1.x is kept; every API in the README now exists,
 compiles and is tested.
@@ -60,5 +62,6 @@ compiles and is tested.
 First tagged version: a Swift 5.7 `ObservableObject` store with reducers, middleware, a
 `ViewStore` and a `TestStore`. It is superseded by the rewrite above.
 
-[Unreleased]: https://github.com/muhittincamdali/SwiftUI-State-Management/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/muhittincamdali/SwiftUI-State-Management/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/muhittincamdali/SwiftUI-State-Management/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/muhittincamdali/SwiftUI-State-Management/releases/tag/v1.0.0
