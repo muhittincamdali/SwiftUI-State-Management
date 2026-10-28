@@ -56,6 +56,11 @@ public final class TestStore<State: Equatable, Action> {
     ///   - initialState: The state to start with.
     ///   - reducer: The reducer under test, with fake dependencies.
     ///   - timeout: The default time to wait for actions and effects; one second unless set.
+    ///   - fileID: Where the store is created, for failures found when it is deallocated; leave
+    ///     the default.
+    ///   - filePath: The file path where the store is created; leave the default.
+    ///   - line: The line where the store is created; leave the default.
+    ///   - column: The column where the store is created; leave the default.
     public init<R: Reducer>(
         initialState: State,
         reducer: R,
@@ -96,8 +101,12 @@ public final class TestStore<State: Equatable, Action> {
     ///   - action: The action to send.
     ///   - update: Changes a copy of the state before the action into the state you expect
     ///     after it. Leave it out when the action must not change the state.
-    /// - Returns: The effects the action started; cancel it to stop them, or await
-    ///   ``StoreTask/finish()``.
+    ///   - fileID: The file of the assertion, for the failure message; leave the default.
+    ///   - filePath: The file path of the assertion; leave the default.
+    ///   - line: The line of the assertion; leave the default.
+    ///   - column: The column of the assertion; leave the default.
+    /// - Returns: The effects the action started; cancel it to stop them, or await its
+    ///   `finish()`.
     @discardableResult
     public func send(
         _ action: Action,
@@ -132,6 +141,10 @@ public final class TestStore<State: Equatable, Action> {
     ///   - timeout: How long to wait in real time; ``timeout`` when `nil`.
     ///   - update: Changes a copy of the state before the action into the state you expect
     ///     after it.
+    ///   - fileID: The file of the assertion, for the failure message; leave the default.
+    ///   - filePath: The file path of the assertion; leave the default.
+    ///   - line: The line of the assertion; leave the default.
+    ///   - column: The column of the assertion; leave the default.
     public func receive(
         _ expectedAction: Action,
         timeout: Duration? = nil,

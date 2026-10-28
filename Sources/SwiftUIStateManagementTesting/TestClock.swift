@@ -1,6 +1,6 @@
 import os
 
-/// A clock whose time moves only when a test calls ``advance(by:)``.
+/// A clock whose time moves only when a test calls ``advance(by:fileID:filePath:line:column:)``.
 ///
 /// Give it to a reducer that sleeps (a debounce, a timeout, a retry delay) and the test decides
 /// when each sleep ends, without waiting in real time:
@@ -152,7 +152,7 @@ public final class TestClock: Clock, Sendable {
     /// Waits until at least `count` tasks are sleeping on the clock, or until `timeout` has
     /// passed in real time.
     ///
-    /// Call it before ``advance(by:)`` when the code under test starts its sleep in another task,
+    /// Call it before ``advance(by:fileID:filePath:line:column:)`` when the code under test starts its sleep in another task,
     /// such as an effect: advancing first would move time past a sleep that has not begun.
     ///
     /// - Returns: `true` when `count` sleepers were reached, `false` after the timeout or when

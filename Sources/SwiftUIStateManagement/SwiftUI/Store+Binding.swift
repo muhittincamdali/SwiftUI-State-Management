@@ -21,7 +21,7 @@ extension Store {
     }
 
     /// Returns a binding that reads `keyPath` and sends `action` when a control writes a new
-    /// value; see ``binding(_:send:)-(KeyPath<State,Value>,_)``. A view that uses it updates only
+    /// value; see `binding(_:send:)`. A view that uses it updates only
     /// when the value at `keyPath` changes.
     public func binding<Value: Equatable>(
         _ keyPath: KeyPath<State, Value>,

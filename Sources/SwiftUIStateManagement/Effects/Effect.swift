@@ -20,7 +20,7 @@
 /// - ``run(priority:operation:catch:)`` and ``run(id:cancelInFlight:priority:operation:catch:)``:
 ///   start an asynchronous operation.
 /// - ``cancel(id:)``: cancel the operations started with an identifier.
-/// - ``merge(_:)-(Effect<Action>...)``: run several effects.
+/// - ``merge(_:)-(Effect...)``: run several effects.
 public struct Effect<Action> {
     struct Run {
         let id: AnyHashable?
@@ -132,7 +132,7 @@ public struct Effect<Action> {
         merge(effects)
     }
 
-    /// An effect that runs all of `effects`; see ``merge(_:)-(Effect<Action>...)``.
+    /// An effect that runs all of `effects`; see ``merge(_:)-(Effect...)``.
     public static func merge(_ effects: [Effect]) -> Effect {
         Effect(operations: effects.flatMap(\.operations))
     }

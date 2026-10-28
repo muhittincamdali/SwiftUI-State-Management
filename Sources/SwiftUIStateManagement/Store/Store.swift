@@ -118,7 +118,7 @@ public final class Store<State, Action>: Observable {
     }
 
     /// Returns a store for part of this store's state and actions; see
-    /// ``scope(state:action:)-(KeyPath<State,ChildState>,_)``. Because the child state is
+    /// `scope(state:action:)`. Because the child state is
     /// `Equatable`, a view of the child store updates only when the child state changes.
     public func scope<ChildState: Equatable, ChildAction>(
         state toChildState: KeyPath<State, ChildState>,
